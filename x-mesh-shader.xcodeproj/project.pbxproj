@@ -59,10 +59,10 @@
 				13F055A62853CC6D00D5C987 /* x_mesh_shaderApp.swift */,
 				13F055A82853CC6D00D5C987 /* ContentView.swift */,
 				13F055B52853CCB600D5C987 /* Renderer.swift */,
+				13F055B72853CD6F00D5C987 /* Shaders.metal */,
 				13F055AA2853CC6E00D5C987 /* Assets.xcassets */,
 				13F055AF2853CC6E00D5C987 /* x_mesh_shader.entitlements */,
 				13F055AC2853CC6E00D5C987 /* Preview Content */,
-				13F055B72853CD6F00D5C987 /* Shaders.metal */,
 			);
 			path = "x-mesh-shader";
 			sourceTree = "<group>";
@@ -274,6 +274,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "x-mesh-shader/x_mesh_shader.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -301,6 +302,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "x-mesh-shader/x_mesh_shader.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
