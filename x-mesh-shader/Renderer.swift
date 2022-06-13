@@ -1,23 +1,22 @@
 import SwiftUI
 import Metal
 
-let DEBUG_BUFFER_BYTE_SIZE = 512
-
-let NUM_OBJECTS_X = 2
-let NUM_OBJECTS_Y = 2
-let MAX_MESH_THREADS_PER_THREADGROUP = 2;
+let NUM_OBJECTS_X = 128
+let NUM_OBJECTS_Y = 128
+let TOTAL_NUM_OBJECTS = NUM_OBJECTS_X * NUM_OBJECTS_Y;
+let MAX_MESH_THREADS_PER_THREADGROUP = 32;
 let MAX_OBJECT_THREADS_PER_THREADGROUP = 1;
 let MAX_THREADGROUPS_PER_MESHGRID = 1;
 
-// TODO: START HERE
-// TODO: START HERE
-// TODO: START HERE
-// Try simplifying mesh group sizing to 1-dimension (instead of x,y)
-// - Look at Apple Mesh Shader sample code, not sure the sizings (threadgroups, maxes, etc) are correct
+typealias OBJECT_DEBUG_TYPE = UInt
+let DEBUG_OBJECT_BUFFER_BYTE_SIZE = MemoryLayout<OBJECT_DEBUG_TYPE>.size
 
-// TODO: START HERE 3
-// TODO: START HERE 3
-// TODO: START HERE 3
+typealias MESH_DEBUG_TYPE = SIMD2<Float>
+let DEBUG_MESH_BUFFER_BYTE_SIZE = TOTAL_NUM_OBJECTS * MemoryLayout<MESH_DEBUG_TYPE>.size
+
+// TODO: START HERE 2
+// TODO: START HERE 2
+// TODO: START HERE 2
 // Render triangles
 
 struct Renderer {
@@ -25,30 +24,31 @@ struct Renderer {
     let commandQueue: MTLCommandQueue
     let renderPipeline: MTLRenderPipelineState
     
-    // Debugging only
     let debug_obj_buffer: MTLBuffer
     let debug_mesh_buffer: MTLBuffer
     
     public init(device: MTLDevice) throws {
         self.device = device
         self.commandQueue = device.makeCommandQueue()!
-        self.debug_obj_buffer = device.makeBuffer(length: DEBUG_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
-        self.debug_mesh_buffer = device.makeBuffer(length: DEBUG_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
+        self.debug_obj_buffer = device.makeBuffer(length: DEBUG_OBJECT_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
+        self.debug_mesh_buffer = device.makeBuffer(length: DEBUG_MESH_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
         
         let lib = device.makeDefaultLibrary()!
-        let desc = MTLMeshRenderPipelineDescriptor()
-        let cvs = MTLFunctionConstantValues()
+        let constants = MTLFunctionConstantValues()
         
         var tmpx = NUM_OBJECTS_X;
-        cvs.setConstantValue(&tmpx, type: .uint, index: 0 /* NUM_OBJECTS_X */)
+        constants.setConstantValue(&tmpx, type: .uint, index: 0 /* NUM_OBJECTS_X */)
         var tmpy = NUM_OBJECTS_Y;
-        cvs.setConstantValue(&tmpy, type: .uint, index: 1 /* NUM_OBJECTS_Y */)
+        constants.setConstantValue(&tmpy, type: .uint, index: 1 /* NUM_OBJECTS_Y */)
+        var tmpt = TOTAL_NUM_OBJECTS;
+        constants.setConstantValue(&tmpt, type: .uint, index: 2 /* TOTAL_NUM_OBJECTS */)
         var tmpm = MAX_MESH_THREADS_PER_THREADGROUP;
-        cvs.setConstantValue(&tmpm, type: .uint, index: 2 /* MAX_MESH_THREADS_PER_THREADGROUP */)
+        constants.setConstantValue(&tmpm, type: .uint, index: 3 /* MAX_MESH_THREADS_PER_THREADGROUP */)
         
-        desc.objectFunction = try lib.makeFunction(name: "obj_main", constantValues: cvs)
-        desc.meshFunction = try lib.makeFunction(name: "mesh_main", constantValues: cvs)
-        desc.fragmentFunction = try lib.makeFunction(name: "frag_main", constantValues: cvs)
+        let desc = MTLMeshRenderPipelineDescriptor()
+        desc.objectFunction = try lib.makeFunction(name: "obj_main", constantValues: constants)
+        desc.meshFunction = try lib.makeFunction(name: "mesh_main", constantValues: constants)
+        desc.fragmentFunction = try lib.makeFunction(name: "frag_main", constantValues: constants)
         desc.colorAttachments[0]?.pixelFormat = .bgra8Unorm
         
         desc.maxTotalThreadgroupsPerMeshGrid = MAX_THREADGROUPS_PER_MESHGRID
@@ -56,6 +56,8 @@ struct Renderer {
         desc.maxTotalThreadsPerMeshThreadgroup = MAX_MESH_THREADS_PER_THREADGROUP
         
         (self.renderPipeline, _) = try device.makeRenderPipelineState(descriptor: desc, options: MTLPipelineOption())
+        
+        assert(self.renderPipeline.meshThreadExecutionWidth == MAX_MESH_THREADS_PER_THREADGROUP, "MAX_MESH_THREADS_PER_THREADGROUP is no longer correct. To maximize performance should be equal to meshThreadExecutionWidth");
     }
     
     public func encodeRender(target: MTLTexture, desc: MTLRenderPassDescriptor) -> MTLCommandBuffer {
