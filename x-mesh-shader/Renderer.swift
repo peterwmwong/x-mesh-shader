@@ -3,11 +3,11 @@ import Metal
 
 let DEBUG_BUFFER_BYTE_SIZE = 512
 
-let GRID_SIZE_X = 4
-let GRID_SIZE_Y = 4
-
-let MESH_GROUP_SIZE_X = 2
-let MESH_GROUP_SIZE_Y = 2
+let NUM_OBJECTS_X = 2
+let NUM_OBJECTS_Y = 2
+let MAX_MESH_THREADS_PER_THREADGROUP = 2;
+let MAX_OBJECT_THREADS_PER_THREADGROUP = 1;
+let MAX_THREADGROUPS_PER_MESHGRID = 1;
 
 // TODO: START HERE
 // TODO: START HERE
@@ -28,37 +28,32 @@ struct Renderer {
     // Debugging only
     let debug_obj_buffer: MTLBuffer
     let debug_mesh_buffer: MTLBuffer
-    // let debug_mesh_buffer_index: MTLBuffer
     
     public init(device: MTLDevice) throws {
         self.device = device
         self.commandQueue = device.makeCommandQueue()!
         self.debug_obj_buffer = device.makeBuffer(length: DEBUG_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
         self.debug_mesh_buffer = device.makeBuffer(length: DEBUG_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
-        // self.debug_mesh_buffer_index = device.makeBuffer(length: 4, options: [.storageModeShared])!;
         
         let lib = device.makeDefaultLibrary()!
         let desc = MTLMeshRenderPipelineDescriptor()
         let cvs = MTLFunctionConstantValues()
         
-        var tmpx = GRID_SIZE_X;
-        cvs.setConstantValue(&tmpx, type: .uint, index: 0 /* GRID_SIZE_X */)
-        var tmpy = GRID_SIZE_Y;
-        cvs.setConstantValue(&tmpy, type: .uint, index: 1 /* GRID_SIZE_Y */)
-        
-        var tmpmx = MESH_GROUP_SIZE_X;
-        cvs.setConstantValue(&tmpmx, type: .uint, index: 2 /* MESH_GROUP_SIZE_X */)
-        var tmpmy = MESH_GROUP_SIZE_Y;
-        cvs.setConstantValue(&tmpmy, type: .uint, index: 3 /* MESH_GROUP_SIZE_Y */)
+        var tmpx = NUM_OBJECTS_X;
+        cvs.setConstantValue(&tmpx, type: .uint, index: 0 /* NUM_OBJECTS_X */)
+        var tmpy = NUM_OBJECTS_Y;
+        cvs.setConstantValue(&tmpy, type: .uint, index: 1 /* NUM_OBJECTS_Y */)
+        var tmpm = MAX_MESH_THREADS_PER_THREADGROUP;
+        cvs.setConstantValue(&tmpm, type: .uint, index: 2 /* MAX_MESH_THREADS_PER_THREADGROUP */)
         
         desc.objectFunction = try lib.makeFunction(name: "obj_main", constantValues: cvs)
         desc.meshFunction = try lib.makeFunction(name: "mesh_main", constantValues: cvs)
         desc.fragmentFunction = try lib.makeFunction(name: "frag_main", constantValues: cvs)
         desc.colorAttachments[0]?.pixelFormat = .bgra8Unorm
         
-        desc.maxTotalThreadgroupsPerMeshGrid = 32
-        desc.maxTotalThreadsPerObjectThreadgroup = 1
-        desc.maxTotalThreadsPerMeshThreadgroup = MESH_GROUP_SIZE_X * MESH_GROUP_SIZE_Y
+        desc.maxTotalThreadgroupsPerMeshGrid = MAX_THREADGROUPS_PER_MESHGRID
+        desc.maxTotalThreadsPerObjectThreadgroup = MAX_OBJECT_THREADS_PER_THREADGROUP
+        desc.maxTotalThreadsPerMeshThreadgroup = MAX_MESH_THREADS_PER_THREADGROUP
         
         (self.renderPipeline, _) = try device.makeRenderPipelineState(descriptor: desc, options: MTLPipelineOption())
     }
@@ -70,15 +65,15 @@ struct Renderer {
         enc.setObjectBuffer(debug_obj_buffer, offset: 0, index: 0)
         enc.setMeshBuffer(debug_mesh_buffer, offset: 0, index: 0)
         
-        // TODO: START HERE 2
-        // TODO: START HERE 2
-        // TODO: START HERE 2
-        // Use an atomic<uint> to manage logging to debug_mesh and debug_object
-        // enc.setMeshBuffer(debug_mesh_buffer_index, offset: 0, index: 1)
+        // TODO: START HERE
+        // In another project, try using using an atomic<uint> to count the number of times a **Vertex shader** is executed.
+        // - Attempting to use it for Mesh Shaders (mesh shading function), gave some unexpected results
+        //   - Dispatch object function once, object function dispatch 1 threadgroup, max threads per mesh threadgroup size = 1... but atomic incremented updated 3 times?!
+        //   - Is this just bug with Object/Mesh shaders?
         
-        enc.drawMeshThreadgroups(MTLSizeMake(GRID_SIZE_X, GRID_SIZE_Y, 1),
-                                 threadsPerObjectThreadgroup: MTLSizeMake(1, 1, 1),
-                                 threadsPerMeshThreadgroup: MTLSizeMake(MESH_GROUP_SIZE_X, MESH_GROUP_SIZE_X, 1)
+        enc.drawMeshThreadgroups(MTLSizeMake(1, 1, 1),
+                                 threadsPerObjectThreadgroup: MTLSizeMake(MAX_OBJECT_THREADS_PER_THREADGROUP, 1, 1),
+                                 threadsPerMeshThreadgroup: MTLSizeMake(MAX_MESH_THREADS_PER_THREADGROUP, 1, 1)
         )
         enc.endEncoding()
         return commandBuffer
