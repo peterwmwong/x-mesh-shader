@@ -1,12 +1,21 @@
 #include <metal_stdlib>
 using namespace metal;
 
-[[object, max_total_threadgroups_per_mesh_grid(1), max_total_threads_per_threadgroup(1)]]
+
+constant constexpr uint   GRID_SIZE_X       [[function_constant(0)]];
+constant constexpr uint   GRID_SIZE_Y       [[function_constant(1)]];
+constant constexpr uint   MESH_GROUP_SIZE_X [[function_constant(2)]];
+constant constexpr uint   MESH_GROUP_SIZE_Y [[function_constant(3)]];
+
+constant const     float2 GRID_SIZE = float2(GRID_SIZE_X, GRID_SIZE_Y);
+
+[[object]]
 void obj_main(       mesh_grid_properties mgp,
-                     uint                 tid [[thread_position_in_grid]],
+                     uint2                tp_in_grid [[thread_position_in_grid]],
               device uchar*               debug_obj_buffer) {
-    debug_obj_buffer[tid] = 128;
-    mgp.set_threadgroups_per_grid(uint3(2, 1, 1));
+    const uint debug_idx = tp_in_grid.y * GRID_SIZE_X + tp_in_grid.x;
+    debug_obj_buffer[debug_idx] = 1;
+    mgp.set_threadgroups_per_grid(uint3(GRID_SIZE_X / MESH_GROUP_SIZE_X, GRID_SIZE_Y / MESH_GROUP_SIZE_Y, 1));
 }
 
 struct VertexData {
@@ -21,30 +30,37 @@ struct PrimitiveData {
 using Mesh = metal::mesh<
     VertexData,    // Vertex Type
     PrimitiveData, // Primitive Type
-    1,             // Max Vertices
-    1,             // Max Primitives
+    16, // Max Vertices
+    16, // Max Primitives
     metal::topology::point
 >;
 
-[[mesh, max_total_threads_per_threadgroup(1)]]
+[[mesh]]
 void mesh_main(       Mesh           m,
-                      uint           tid_in_grid  [[thread_position_in_grid]],
-                      uint           tid_in_group [[thread_position_in_threadgroup]],
-                      uint           gid_in_grid  [[threadgroup_position_in_grid]],
-               device packed_uchar3* debug_mesh_buffer) {
-    debug_mesh_buffer[tid_in_grid] = uchar3(tid_in_grid, tid_in_group, gid_in_grid) + 1;
-    if (tid_in_group == 0) {
-        // Set only once per primitive
-        m.set_primitive_count(1);
-        m.set_primitive(tid_in_group, { .color = float3(1., 0., 0.) });
-        
-        // TODO: What does set_index do?
-        // m.set_index(lid, lid);
-        m.set_vertex(tid_in_group, {
-            .position = float4(float(gid_in_grid) * 0.5, 0.0, 0.0, 1),
-            .point_size = 128.0
-        });
+                      uint2          tp_in_grid  [[thread_position_in_grid]],
+                      uint2          tp_in_group [[thread_position_in_threadgroup]],
+                      uint2          gp_in_grid  [[threadgroup_position_in_grid]],
+               device packed_float4* debug_mesh_buffer [[buffer(0)]]) {
+    const uint tid = tp_in_grid.y * GRID_SIZE_X + tp_in_grid.x;
+    const uint debug_idx = tid;
+    
+    const uint primitive_id = tp_in_group.y * MESH_GROUP_SIZE_Y + tp_in_group.x;
+    if (primitive_id == 0) {
+        // Set once per Thread Group
+        m.set_primitive_count(MESH_GROUP_SIZE_X * MESH_GROUP_SIZE_Y);
     }
+    
+    // Set once per Primitive
+    const float2 pos = float2(tp_in_grid) / float2(GRID_SIZE - 1) - 0.5;
+    debug_mesh_buffer[debug_idx]
+        = float4(float(tid), float(tp_in_grid.x), float(tp_in_grid.y), pos.x);
+    m.set_primitive(primitive_id, { .color = float3(1., 0., 0.) });
+    m.set_index(primitive_id, primitive_id);
+    m.set_vertex(primitive_id, {
+        .position = float4(pos, 0.0, 1),
+        .point_size = 2.0
+    });
+    
 }
 
 struct FragmentIn {
