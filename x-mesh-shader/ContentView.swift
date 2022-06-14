@@ -7,10 +7,10 @@ final class PreviewMetalView: MTKView {
     init(device: MTLDevice?) {
         self.renderer = try! Renderer(device: device!)
         super.init(frame: .zero, device: device)
-        self.isPaused = false
-        self.enableSetNeedsDisplay = false
+        self.isPaused = true
+        self.enableSetNeedsDisplay = true
         self.autoResizeDrawable = true
-        self.framebufferOnly = false
+        self.framebufferOnly = true
         self.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
     }
     
