@@ -1,25 +1,14 @@
 import SwiftUI
 import Metal
 
-typealias OBJECT_DEBUG_TYPE = UInt
-let DEBUG_OBJECT_BUFFER_BYTE_SIZE = MemoryLayout<OBJECT_DEBUG_TYPE>.size
-
-typealias MESH_DEBUG_TYPE = SIMD2<Float>
-let DEBUG_MESH_BUFFER_BYTE_SIZE = Int(NUM_PRIMITIVES * NUM_VERTICES_PER_PRIMITIVE) * MemoryLayout<MESH_DEBUG_TYPE>.size
-
 struct Renderer {
     let device: MTLDevice
     let commandQueue: MTLCommandQueue
     let renderPipeline: MTLRenderPipelineState
     
-    let debug_obj_buffer: MTLBuffer
-    let debug_mesh_buffer: MTLBuffer
-    
     public init(device: MTLDevice) throws {
         self.device = device
         self.commandQueue = device.makeCommandQueue()!
-        self.debug_obj_buffer = device.makeBuffer(length: DEBUG_OBJECT_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
-        self.debug_mesh_buffer = device.makeBuffer(length: DEBUG_MESH_BUFFER_BYTE_SIZE, options: [.storageModeShared])!;
         
         let lib = device.makeDefaultLibrary()!
         let constants = MTLFunctionConstantValues()
@@ -42,8 +31,6 @@ struct Renderer {
         let commandBuffer = commandQueue.makeCommandBufferWithUnretainedReferences()!
         let enc = commandBuffer.makeRenderCommandEncoder(descriptor: desc)!
         enc.setRenderPipelineState(renderPipeline)
-        enc.setObjectBuffer(debug_obj_buffer, offset: 0, index: 0)
-        enc.setMeshBuffer(debug_mesh_buffer, offset: 0, index: 0)
         
         // In another project, try using using an atomic<uint> to count the number of times a **Vertex shader** is executed.
         // - Attempting to use it for Mesh Shaders (mesh shading function), gave some unexpected results
