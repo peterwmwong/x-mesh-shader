@@ -30,10 +30,8 @@ final class PreviewMetalView: MTKView {
 
 #if canImport(UIKit)
     private typealias ViewRepresentable = UIViewRepresentable
-    typealias ViewType = UIView
 #elseif canImport(AppKit)
     private typealias ViewRepresentable = NSViewRepresentable
-    typealias ViewType = NSView
 #endif
 
 struct ContentView: ViewRepresentable {

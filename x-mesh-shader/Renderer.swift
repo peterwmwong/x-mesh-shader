@@ -50,7 +50,6 @@ struct Renderer {
         enc.setObjectBuffer(debug_obj_buffer, offset: 0, index: 0)
         enc.setMeshBuffer(debug_mesh_buffer, offset: 0, index: 0)
         
-        // TODO: START HERE
         // In another project, try using using an atomic<uint> to count the number of times a **Vertex shader** is executed.
         // - Attempting to use it for Mesh Shaders (mesh shading function), gave some unexpected results
         //   - Dispatch object function once, object function dispatch 1 threadgroup, max threads per mesh threadgroup size = 1... but atomic incremented updated 3 times?!
