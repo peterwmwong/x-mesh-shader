@@ -16,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		132B434028581BB60009EB2C /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		13F055A32853CC6D00D5C987 /* x-mesh-shader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "x-mesh-shader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13F055A62853CC6D00D5C987 /* x_mesh_shaderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = x_mesh_shaderApp.swift; sourceTree = "<group>"; };
 		13F055A82853CC6D00D5C987 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -63,6 +64,7 @@
 				13F055AA2853CC6E00D5C987 /* Assets.xcassets */,
 				13F055AF2853CC6E00D5C987 /* x_mesh_shader.entitlements */,
 				13F055AC2853CC6E00D5C987 /* Preview Content */,
+				132B434028581BB60009EB2C /* Common.h */,
 			);
 			path = "x-mesh-shader";
 			sourceTree = "<group>";
@@ -211,6 +213,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "x-mesh-shader/Common.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -264,6 +267,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "x-mesh-shader/Common.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;

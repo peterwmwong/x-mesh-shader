@@ -1,19 +1,13 @@
 #include <metal_stdlib>
+#include "Common.h"
+
 using namespace metal;
-
-constant constexpr uint NUM_OBJECTS_X                    [[function_constant(0)]];
-constant constexpr uint NUM_OBJECTS_Y                    [[function_constant(1)]];
-constant constexpr uint TOTAL_NUM_OBJECTS                [[function_constant(2)]];
-constant constexpr uint MAX_MESH_THREADS_PER_THREADGROUP [[function_constant(3)]];
-
-constant const     uint FIRST_TP_OF_LAST_THREADGROUP       = MAX_MESH_THREADS_PER_THREADGROUP * (TOTAL_NUM_OBJECTS / MAX_MESH_THREADS_PER_THREADGROUP);
-constant const     uint NUM_PRIMITIVES_OF_LAST_THREADGROUP = TOTAL_NUM_OBJECTS - FIRST_TP_OF_LAST_THREADGROUP;
 
 [[object]]
 void obj_main(       mesh_grid_properties mgp,
               device uint*                debug_obj_buffer) {
     debug_obj_buffer[0] = 7;
-    const uint num_threadgroups = (TOTAL_NUM_OBJECTS + MAX_MESH_THREADS_PER_THREADGROUP - 1) / MAX_MESH_THREADS_PER_THREADGROUP;
+    constexpr uint num_threadgroups = (TOTAL_NUM_OBJECTS + MAX_MESH_THREADS_PER_THREADGROUP - 1) / MAX_MESH_THREADS_PER_THREADGROUP;
     mgp.set_threadgroups_per_grid(uint3(num_threadgroups, 1, 1));
 }
 
@@ -27,15 +21,10 @@ struct PrimitiveData {
 };
 
 using Mesh = metal::mesh<
-    VertexData,    // Vertex Type
-    PrimitiveData, // Primitive Type
-    // TODO: START HERE
-    // TODO: START HERE
-    // TODO: START HERE
-    // This should be set to MAX_MESH_THREADS_PER_THREADGROUP
-    // - Try creating a header file and defining a constant/define
-    32, // Max Vertices
-    32, // Max Primitives
+    VertexData,                       // Vertex Type
+    PrimitiveData,                    // Primitive Type
+    MAX_MESH_THREADS_PER_THREADGROUP, // Max Vertices
+    MAX_MESH_THREADS_PER_THREADGROUP, // Max Primitives
     metal::topology::point
 >;
 

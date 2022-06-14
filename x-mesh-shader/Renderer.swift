@@ -1,18 +1,11 @@
 import SwiftUI
 import Metal
 
-let NUM_OBJECTS_X = 128
-let NUM_OBJECTS_Y = 128
-let TOTAL_NUM_OBJECTS = NUM_OBJECTS_X * NUM_OBJECTS_Y;
-let MAX_MESH_THREADS_PER_THREADGROUP = 32;
-let MAX_OBJECT_THREADS_PER_THREADGROUP = 1;
-let MAX_THREADGROUPS_PER_MESHGRID = 1;
-
 typealias OBJECT_DEBUG_TYPE = UInt
 let DEBUG_OBJECT_BUFFER_BYTE_SIZE = MemoryLayout<OBJECT_DEBUG_TYPE>.size
 
 typealias MESH_DEBUG_TYPE = SIMD2<Float>
-let DEBUG_MESH_BUFFER_BYTE_SIZE = TOTAL_NUM_OBJECTS * MemoryLayout<MESH_DEBUG_TYPE>.size
+let DEBUG_MESH_BUFFER_BYTE_SIZE = Int(TOTAL_NUM_OBJECTS) * MemoryLayout<MESH_DEBUG_TYPE>.size
 
 // TODO: START HERE 2
 // TODO: START HERE 2
@@ -35,25 +28,15 @@ struct Renderer {
         
         let lib = device.makeDefaultLibrary()!
         let constants = MTLFunctionConstantValues()
-        
-        var tmpx = NUM_OBJECTS_X;
-        constants.setConstantValue(&tmpx, type: .uint, index: 0 /* NUM_OBJECTS_X */)
-        var tmpy = NUM_OBJECTS_Y;
-        constants.setConstantValue(&tmpy, type: .uint, index: 1 /* NUM_OBJECTS_Y */)
-        var tmpt = TOTAL_NUM_OBJECTS;
-        constants.setConstantValue(&tmpt, type: .uint, index: 2 /* TOTAL_NUM_OBJECTS */)
-        var tmpm = MAX_MESH_THREADS_PER_THREADGROUP;
-        constants.setConstantValue(&tmpm, type: .uint, index: 3 /* MAX_MESH_THREADS_PER_THREADGROUP */)
-        
         let desc = MTLMeshRenderPipelineDescriptor()
         desc.objectFunction = try lib.makeFunction(name: "obj_main", constantValues: constants)
         desc.meshFunction = try lib.makeFunction(name: "mesh_main", constantValues: constants)
         desc.fragmentFunction = try lib.makeFunction(name: "frag_main", constantValues: constants)
         desc.colorAttachments[0]?.pixelFormat = .bgra8Unorm
         
-        desc.maxTotalThreadgroupsPerMeshGrid = MAX_THREADGROUPS_PER_MESHGRID
-        desc.maxTotalThreadsPerObjectThreadgroup = MAX_OBJECT_THREADS_PER_THREADGROUP
-        desc.maxTotalThreadsPerMeshThreadgroup = MAX_MESH_THREADS_PER_THREADGROUP
+        desc.maxTotalThreadgroupsPerMeshGrid = Int(MAX_MESH_THREADS_PER_THREADGROUP)
+        desc.maxTotalThreadsPerObjectThreadgroup = Int(MAX_OBJECT_THREADS_PER_THREADGROUP)
+        desc.maxTotalThreadsPerMeshThreadgroup = Int(MAX_MESH_THREADS_PER_THREADGROUP)
         
         (self.renderPipeline, _) = try device.makeRenderPipelineState(descriptor: desc, options: MTLPipelineOption())
         
@@ -74,8 +57,8 @@ struct Renderer {
         //   - Is this just bug with Object/Mesh shaders?
         
         enc.drawMeshThreadgroups(MTLSizeMake(1, 1, 1),
-                                 threadsPerObjectThreadgroup: MTLSizeMake(MAX_OBJECT_THREADS_PER_THREADGROUP, 1, 1),
-                                 threadsPerMeshThreadgroup: MTLSizeMake(MAX_MESH_THREADS_PER_THREADGROUP, 1, 1)
+                                 threadsPerObjectThreadgroup: MTLSizeMake(Int(MAX_OBJECT_THREADS_PER_THREADGROUP), 1, 1),
+                                 threadsPerMeshThreadgroup: MTLSizeMake(Int(MAX_MESH_THREADS_PER_THREADGROUP), 1, 1)
         )
         enc.endEncoding()
         return commandBuffer
