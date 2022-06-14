@@ -19,4 +19,13 @@
 #define MAX_OBJECT_THREADS_PER_THREADGROUP 1
 #define MAX_THREADGROUPS_PER_MESHGRID      1
 
+#ifdef __METAL_VERSION__
+namespace __COMMON_STATIC_ASSERTS__ {
+constexpr bool is_powerof2(int v) {
+    return v && ((v & (v - 1)) == 0);
+}
+static_assert(is_powerof2(MAX_MESH_THREADS_PER_THREADGROUP), "MAX_MESH_THREADS_PER_THREADGROUP is not a power of 2");
+}
+#endif
+
 #endif /* Common_h */

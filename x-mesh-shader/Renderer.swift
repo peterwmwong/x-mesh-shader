@@ -40,7 +40,7 @@ struct Renderer {
         
         (self.renderPipeline, _) = try device.makeRenderPipelineState(descriptor: desc, options: MTLPipelineOption())
         
-        assert(self.renderPipeline.meshThreadExecutionWidth == MAX_MESH_THREADS_PER_THREADGROUP, "MAX_MESH_THREADS_PER_THREADGROUP is no longer correct. To maximize performance should be equal to meshThreadExecutionWidth");
+        assert(self.renderPipeline.meshThreadExecutionWidth == MAX_MESH_THREADS_PER_THREADGROUP, "MAX_MESH_THREADS_PER_THREADGROUP is no longer optimal. To maximize performance, MAX_MESH_THREADS_PER_THREADGROUP should be equal to meshThreadExecutionWidth");
     }
     
     public func encodeRender(target: MTLTexture, desc: MTLRenderPassDescriptor) -> MTLCommandBuffer {
