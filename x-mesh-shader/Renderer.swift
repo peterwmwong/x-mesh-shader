@@ -34,13 +34,13 @@ struct Renderer {
         desc.fragmentFunction = try lib.makeFunction(name: "frag_main", constantValues: constants)
         desc.colorAttachments[0]?.pixelFormat = .bgra8Unorm
         
-        desc.maxTotalThreadgroupsPerMeshGrid = Int(MAX_MESH_THREADS_PER_THREADGROUP)
-        desc.maxTotalThreadsPerObjectThreadgroup = Int(MAX_OBJECT_THREADS_PER_THREADGROUP)
-        desc.maxTotalThreadsPerMeshThreadgroup = Int(MAX_MESH_THREADS_PER_THREADGROUP)
+        desc.maxTotalThreadgroupsPerMeshGrid = Int(MAX_THREADGROUPS_PER_MESHGRID)
+        desc.maxTotalThreadsPerObjectThreadgroup = Int(OBJECT_THREADS_PER_THREADGROUP)
+        desc.maxTotalThreadsPerMeshThreadgroup = Int(MESH_THREADS_PER_THREADGROUP)
         
         (self.renderPipeline, _) = try device.makeRenderPipelineState(descriptor: desc, options: MTLPipelineOption())
         
-        assert(self.renderPipeline.meshThreadExecutionWidth == MAX_MESH_THREADS_PER_THREADGROUP, "MAX_MESH_THREADS_PER_THREADGROUP is no longer optimal. To maximize performance, MAX_MESH_THREADS_PER_THREADGROUP should be equal to meshThreadExecutionWidth");
+        assert(self.renderPipeline.meshThreadExecutionWidth == MESH_THREADS_PER_THREADGROUP, "MESH_THREADS_PER_THREADGROUP is no longer optimal. To maximize performance, MESH_THREADS_PER_THREADGROUP should be equal to meshThreadExecutionWidth");
     }
     
     public func encodeRender(target: MTLTexture, desc: MTLRenderPassDescriptor) -> MTLCommandBuffer {
@@ -57,8 +57,8 @@ struct Renderer {
         //   - Is this just bug with Object/Mesh shaders?
         
         enc.drawMeshThreadgroups(MTLSizeMake(1, 1, 1),
-                                 threadsPerObjectThreadgroup: MTLSizeMake(Int(MAX_OBJECT_THREADS_PER_THREADGROUP), 1, 1),
-                                 threadsPerMeshThreadgroup: MTLSizeMake(Int(MAX_MESH_THREADS_PER_THREADGROUP), 1, 1)
+                                 threadsPerObjectThreadgroup: MTLSizeMake(Int(OBJECT_THREADS_PER_THREADGROUP), 1, 1),
+                                 threadsPerMeshThreadgroup: MTLSizeMake(Int(MESH_THREADS_PER_THREADGROUP), 1, 1)
         )
         enc.endEncoding()
         return commandBuffer
