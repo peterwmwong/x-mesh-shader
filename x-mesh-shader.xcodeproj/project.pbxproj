@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		13F055A72853CC6D00D5C987 /* x_mesh_shaderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F055A62853CC6D00D5C987 /* x_mesh_shaderApp.swift */; };
-		13F055A92853CC6D00D5C987 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F055A82853CC6D00D5C987 /* ContentView.swift */; };
 		13F055AB2853CC6E00D5C987 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13F055AA2853CC6E00D5C987 /* Assets.xcassets */; };
 		13F055AE2853CC6E00D5C987 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13F055AD2853CC6E00D5C987 /* Preview Assets.xcassets */; };
 		13F055B62853CCB600D5C987 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F055B52853CCB600D5C987 /* Renderer.swift */; };
@@ -19,7 +18,6 @@
 		132B434028581BB60009EB2C /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		13F055A32853CC6D00D5C987 /* x-mesh-shader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "x-mesh-shader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13F055A62853CC6D00D5C987 /* x_mesh_shaderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = x_mesh_shaderApp.swift; sourceTree = "<group>"; };
-		13F055A82853CC6D00D5C987 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		13F055AA2853CC6E00D5C987 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		13F055AD2853CC6E00D5C987 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		13F055AF2853CC6E00D5C987 /* x_mesh_shader.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = x_mesh_shader.entitlements; sourceTree = "<group>"; };
@@ -58,13 +56,12 @@
 			isa = PBXGroup;
 			children = (
 				13F055A62853CC6D00D5C987 /* x_mesh_shaderApp.swift */,
-				13F055A82853CC6D00D5C987 /* ContentView.swift */,
 				13F055B52853CCB600D5C987 /* Renderer.swift */,
+				132B434028581BB60009EB2C /* Common.h */,
 				13F055B72853CD6F00D5C987 /* Shaders.metal */,
 				13F055AA2853CC6E00D5C987 /* Assets.xcassets */,
 				13F055AF2853CC6E00D5C987 /* x_mesh_shader.entitlements */,
 				13F055AC2853CC6E00D5C987 /* Preview Content */,
-				132B434028581BB60009EB2C /* Common.h */,
 			);
 			path = "x-mesh-shader";
 			sourceTree = "<group>";
@@ -148,7 +145,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				13F055B82853CD6F00D5C987 /* Shaders.metal in Sources */,
-				13F055A92853CC6D00D5C987 /* ContentView.swift in Sources */,
 				13F055B62853CCB600D5C987 /* Renderer.swift in Sources */,
 				13F055A72853CC6D00D5C987 /* x_mesh_shaderApp.swift in Sources */,
 			);
