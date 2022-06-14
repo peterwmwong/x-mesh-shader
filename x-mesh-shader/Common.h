@@ -20,7 +20,9 @@
 #endif
 
 // TODO: Not sure #define does not work.
+// - It seems to be existence of too many parenthesis:
+//     - WORKS:         (128 + 128)
+//     - DOES NOT WORK: (128 + (128))
 DEF_CONSTANT unsigned int THREADGROUPS_PER_MESHGRID = (TOTAL_NUM_OBJECTS + MESH_THREADS_PER_THREADGROUP_MASK) / MESH_THREADS_PER_THREADGROUP;
-
 
 #endif /* Common_h */

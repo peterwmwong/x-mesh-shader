@@ -34,7 +34,7 @@ struct Renderer {
         desc.fragmentFunction = try lib.makeFunction(name: "frag_main", constantValues: constants)
         desc.colorAttachments[0]?.pixelFormat = .bgra8Unorm
         
-        desc.maxTotalThreadgroupsPerMeshGrid = Int(MAX_THREADGROUPS_PER_MESHGRID)
+        desc.maxTotalThreadgroupsPerMeshGrid = Int(THREADGROUPS_PER_MESHGRID)
         desc.maxTotalThreadsPerObjectThreadgroup = Int(OBJECT_THREADS_PER_THREADGROUP)
         desc.maxTotalThreadsPerMeshThreadgroup = Int(MESH_THREADS_PER_THREADGROUP)
         
