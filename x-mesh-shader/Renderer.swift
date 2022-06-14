@@ -5,12 +5,7 @@ typealias OBJECT_DEBUG_TYPE = UInt
 let DEBUG_OBJECT_BUFFER_BYTE_SIZE = MemoryLayout<OBJECT_DEBUG_TYPE>.size
 
 typealias MESH_DEBUG_TYPE = SIMD2<Float>
-let DEBUG_MESH_BUFFER_BYTE_SIZE = Int(TOTAL_NUM_OBJECTS) * MemoryLayout<MESH_DEBUG_TYPE>.size
-
-// TODO: START HERE 2
-// TODO: START HERE 2
-// TODO: START HERE 2
-// Render triangles
+let DEBUG_MESH_BUFFER_BYTE_SIZE = Int(NUM_PRIMITIVES * NUM_VERTICES_PER_PRIMITIVE) * MemoryLayout<MESH_DEBUG_TYPE>.size
 
 struct Renderer {
     let device: MTLDevice

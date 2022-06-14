@@ -11,8 +11,7 @@ void obj_main(       mesh_grid_properties mgp,
 }
 
 struct VertexData {
-    float4 position   [[position]];
-    float  point_size [[point_size]];
+    float4 position [[position]];
 };
 
 struct PrimitiveData {
@@ -20,11 +19,11 @@ struct PrimitiveData {
 };
 
 using Mesh = metal::mesh<
-    VertexData,                   // Vertex Type
-    PrimitiveData,                // Primitive Type
-    MESH_THREADS_PER_THREADGROUP, // Max Vertices
-    MESH_THREADS_PER_THREADGROUP, // Max Primitives
-    metal::topology::point
+    VertexData,                     // Vertex Type
+    PrimitiveData,                  // Primitive Type
+    MAX_VERTICES_PER_THREADGROUP,   // Max Vertices
+    MAX_PRIMITIVES_PER_THREADGROUP, // Max Primitives
+    metal::topology::triangle
 >;
 
 [[mesh]]
@@ -36,18 +35,23 @@ void mesh_main(       Mesh           m,
         // Set once per Thread Group
         m.set_primitive_count(select(NUM_PRIMITIVES_OF_LAST_THREADGROUP, MESH_THREADS_PER_THREADGROUP, tp_in_grid < FIRST_TP_OF_LAST_THREADGROUP));
     }
-    if (tp_in_grid < TOTAL_NUM_OBJECTS) {
+    if (tp_in_grid < NUM_PRIMITIVES) {
         // Set once per Primitive
         m.set_primitive(tid_in_group, { .color = float3(1., 0., 0.) });
-        m.set_index(tid_in_group, tid_in_group);
-
-        const float2 grid_pos = float2(float(tp_in_grid % NUM_OBJECTS_X), float(tp_in_grid / NUM_OBJECTS_X));
-        const float2 pos = grid_pos / float2(float2(NUM_OBJECTS_X, NUM_OBJECTS_Y) - 1) - 0.5;
-        debug_mesh_buffer[tp_in_grid] = pos;
-        m.set_vertex(tid_in_group, {
-            .position = float4(pos, 0, 1),
-            .point_size = 4.0
-        });
+        
+        const float2 grid_pos = float2(float(tp_in_grid % NUM_PRIMITIVES_X), float(tp_in_grid / NUM_PRIMITIVES_X));
+        const float2 pos = grid_pos / float2(float2(NUM_PRIMITIVES_X, NUM_PRIMITIVES_Y) - 1) - 0.5;
+        uint debug_idx = tp_in_grid * 3;
+        uint i = tid_in_group * NUM_VERTICES_PER_PRIMITIVE;
+        for (const float2 v : { float2(-1, -1), float2(0, 1), float2(1, -1) }) {
+            const float2 vpos = fma(v, 0.0025, pos);
+            debug_mesh_buffer[debug_idx] = vpos;
+            debug_idx++;
+            
+            m.set_vertex(i, { .position = float4(vpos, 0, 1) });
+            m.set_index(i, i);
+            i++;
+        }
     }
 }
 
