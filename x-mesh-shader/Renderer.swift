@@ -44,7 +44,7 @@ struct Renderer {
     }
     
     public func encodeRender(target: MTLTexture, desc: MTLRenderPassDescriptor) -> MTLCommandBuffer {
-        let commandBuffer = commandQueue.makeCommandBuffer()!
+        let commandBuffer = commandQueue.makeCommandBufferWithUnretainedReferences()!
         let enc = commandBuffer.makeRenderCommandEncoder(descriptor: desc)!
         enc.setRenderPipelineState(renderPipeline)
         enc.setObjectBuffer(debug_obj_buffer, offset: 0, index: 0)
